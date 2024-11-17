@@ -145,15 +145,16 @@ forecast_data['delta_y_predicted'] = (
 # Display the forecast table
 print(forecast_data)
 
+years = ['2019', '2020', '2021', '2022', '2023']
 # Plot actual vs. predicted values
 plt.figure(figsize=(10, 6))
-plt.plot(range(len(delta_y_forecast)), delta_y_forecast, marker='o', label='Actual Y', linestyle='-', linewidth=2)
-plt.plot(range(len(forecast_data['delta_y_predicted'])), forecast_data['delta_y_predicted'], marker='s', label='Predicted Y', linestyle='--', linewidth=2)
+plt.plot(years, delta_y_forecast, marker='o', label='Actual Y', linestyle='-', linewidth=2)
+plt.plot(years, forecast_data['delta_y_predicted'], marker='s', label='Predicted Y', linestyle='--', linewidth=2)
 
 # Adding labels, title, and legend
 plt.title('Comparison of Actual and Predicted Y Values (Forecast)', fontsize=16)
 plt.xlabel('Year', fontsize=14)
-plt.ylabel('Delta Y Values', fontsize=14)
+plt.ylabel('Hong Kong Rental Growth Values', fontsize=14)
 plt.legend(fontsize=12)
 plt.grid(True)
 plt.show()
