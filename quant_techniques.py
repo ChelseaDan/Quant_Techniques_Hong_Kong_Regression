@@ -12,7 +12,6 @@ from colorama import Fore, Back, Style
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
 
-
 #Add Hong Kong Rental growth data
 
 delta_vac_test = [-45.95, -8.33, -50.91, 96.30, 15.09, 50.82, 5.43, -30.93, 46.27, -4.08, 19.15, 2.68, 38.26, -11.95, -27.14, 8.82, 13.51, 11.11, -9.29, -31.50, -11.49, 15.58, -5.62, 22.62, -22.33, -18.75, -7.69, 16.67, -10.00, 26.98, 2.50, 15.85, 3.4, -9.47, 4.65, 27.78, 6.96, 17.07]
