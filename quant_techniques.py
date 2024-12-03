@@ -9,6 +9,7 @@ from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.tsa.stattools import adfuller
 import statsmodels.stats.diagnostic as smd
 from colorama import Fore, Back, Style
+from sklearn.metrics import mean_absolute_error, mean_squared_error
 
 
 #Add Hong Kong Rental growth data
@@ -28,6 +29,47 @@ delta_takeup_forecast = [-4.7421, -205.5997, -15.7217, -193.1888, 7.734]
 delta_stock_forecast = [2.16, 0.92, 0.91, 2.97, 1.53]
 delta_unemployment_forecast = [3.99, 99.11, -10.92, -16.54, -8.96]
 delta_y_forecast = [.65, -7.54, -3.43, -1.46, 1.00]
+
+data = pd.DataFrame({
+    'delta_y': delta_y_test,
+    'delta_vac': delta_vac_test,
+    'delta_takeup': delta_takeup_test,
+    'delta_gdp': delta_gdp_test,
+    'delta_unemployment': delta_unemployment_test
+})
+
+# Adjust pandas settings to display the entire table
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
+
+# Add lagged and lead variables for up to 3 periods
+lags_leads = [-3, -2, -1, 0, 1, 2, 3]
+correlation_table = pd.DataFrame(index=lags_leads)
+
+# Calculate correlations
+for col in ['delta_vac', 'delta_takeup', 'delta_gdp', 'delta_unemployment']:
+    for lag_lead in lags_leads:
+        shifted_col = data[col].shift(lag_lead)
+        correlation = data['delta_y'].corr(shifted_col)
+        correlation_table.loc[lag_lead, f"{col}_lag{lag_lead}" if lag_lead < 0 else f"{col}_lead{lag_lead}"] = correlation
+
+# Display the correlation table
+correlation_table = correlation_table.sort_index()
+print("\nCorrelation Table (lags/leads up to 3 periods):")
+print(correlation_table)
+
+# Plot heatmap of the correlation table for better visualization
+plt.figure(figsize=(12, 8))
+plt.imshow(correlation_table, cmap='coolwarm', aspect='auto', interpolation='none')
+plt.colorbar(label='Correlation Coefficient')
+plt.title('Heatmap of Correlations Between Variables and Delta_Y', fontsize=16)
+plt.xlabel('Variables (lags and leads)', fontsize=14)
+plt.ylabel('Lag/Lead Periods', fontsize=14)
+plt.xticks(range(correlation_table.shape[1]), correlation_table.columns, rotation=90, fontsize=12)
+plt.yticks(range(correlation_table.shape[0]), correlation_table.index, fontsize=12)
+plt.grid(False)
+plt.tight_layout()
+plt.show()
 
 #print(len(delta_vac))
 #print(len(cpi))
@@ -230,3 +272,36 @@ plt.ylabel('Hong Kong Rental Growth Values', fontsize=14)
 plt.legend(fontsize=12)
 plt.grid(True)
 plt.show()
+
+# Calculate forecast errors for Model 1
+actual_1 = forecast_data_1['delta_y_actual']
+predicted_1 = forecast_data_1['delta_y_predicted_1']
+
+# Calculate forecast errors for Model 2
+actual_2 = forecast_data_2['delta_y_actual']
+predicted_2 = forecast_data_2['delta_y_predicted_2']
+
+# Metrics for Model 1
+mae_1 = mean_absolute_error(actual_1, predicted_1)
+mse_1 = mean_squared_error(actual_1, predicted_1)
+rmse_1 = np.sqrt(mse_1)
+mape_1 = np.mean(np.abs((actual_1 - predicted_1) / actual_1)) * 100
+
+# Metrics for Model 2
+mae_2 = mean_absolute_error(actual_2, predicted_2)
+mse_2 = mean_squared_error(actual_2, predicted_2)
+rmse_2 = np.sqrt(mse_2)
+mape_2 = np.mean(np.abs((actual_2 - predicted_2) / actual_2)) * 100
+
+# Print the metrics for both models
+print("\nModel 1 Performance Metrics:")
+print(f"Mean Absolute Error (MAE): {mae_1:.4f}")
+print(f"Mean Squared Error (MSE): {mse_1:.4f}")
+print(f"Root Mean Squared Error (RMSE): {rmse_1:.4f}")
+print(f"Mean Absolute Percentage Error (MAPE): {mape_1:.2f}%")
+
+print("\nModel 2 Performance Metrics:")
+print(f"Mean Absolute Error (MAE): {mae_2:.4f}")
+print(f"Mean Squared Error (MSE): {mse_2:.4f}")
+print(f"Root Mean Squared Error (RMSE): {rmse_2:.4f}")
+print(f"Mean Absolute Percentage Error (MAPE): {mape_2:.2f}%")
